@@ -24,16 +24,20 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 feature_root = root / "roxford-rparis" / "embedding"
 
-index = faiss.read_index(str(feature_root / "rparis_resnet50.index.bin"))
+resnet_l2_index = faiss.read_index(str(feature_root / "rparis_resnet50.l2_index.bin"))
 
-aug_index = faiss.read_index(str(feature_root / "cropped_rparis_resnet50.index.bin"))
+aug_resnet_l2_index = faiss.read_index(
+    str(feature_root / "cropped_rparis_resnet50.l2_index.bin")
+)
+
+hog_l2_index = faiss.read_index(str(feature_root / "rparis_hog.l2_index.bin"))
 
 extractor = FeatureExtractor(device)
 
 ds = RParisDataset(transform=None)
 
 
-def retrieve(query_img, k, index=index):
+def retrieve(query_img, k, index=resnet_l2_index):
     img = transform(query_img)
     img = img.unsqueeze(0).to(device)
 
@@ -44,9 +48,11 @@ def retrieve(query_img, k, index=index):
 
 
 def retrieve_augmented(query_img, k):
-    src_indices, src_dst = retrieve(query_img, k, index=index)
-    src_indices = extend_answer_on_augment_ds(query_img, k, src_indices, src_dst, index)
-    return src_indices
+    src_indices, src_dst = retrieve(query_img, k, index=resnet_l2_index)
+    src_indices, src_dst = extend_answer_on_augment_ds(
+        query_img, k * 4, src_indices, src_dst, aug_index=aug_resnet_l2_index
+    )
+    return src_indices, src_dst
 
 
 def extend_answer_on_augment_ds(query_im, k, src_indices, src_dst, aug_index):
@@ -59,7 +65,7 @@ def extend_answer_on_augment_ds(query_im, k, src_indices, src_dst, aug_index):
             src_indices.insert(ins_pos, original_idx)
             src_dst.insert(ins_pos, aug_dst[idx])
 
-    return src_indices
+    return src_indices, src_dst
 
 
 def get_image_from_index(idx):
