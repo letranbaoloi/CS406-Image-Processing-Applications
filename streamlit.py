@@ -24,7 +24,7 @@ with col1:
         (
             "ResNet50",
             "ResNet50 (Augmented)",
-            "HOG",
+            # "HOG",
         ),
     )
 
@@ -83,8 +83,8 @@ with col2:
             indices, scores = retrieve(img, k)
         elif feature_space_opt == "ResNet50 (Augmented)":
             indices, scores = retrieve_augmented(img, k)
-        elif feature_space_opt == "HOG":
-            indices, scores = retrieve(img, k, index=hog_l2_index)
+        # elif feature_space_opt == "HOG":
+        #     indices, scores = retrieve(img, k, index=hog_l2_index)
         end = time.time()
 
         st.markdown(f"**Finish in {(end - start):.2f} seconds**")
