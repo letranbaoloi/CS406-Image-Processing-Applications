@@ -16,7 +16,7 @@ class RParisDataset(Dataset):
     def __init__(self, transform=None):
         self.transform = transform
 
-        with open("gnd_rparis6k.pkl", "rb") as f:
+        with open("data/gnd_rparis6k.pkl", "rb") as f:
             self.gnd = pickle.load(f)
 
     def __len__(self):
