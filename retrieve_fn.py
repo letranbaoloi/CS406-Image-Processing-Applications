@@ -1,5 +1,5 @@
 import torch
-
+import numpy as np
 import faiss
 from torchvision import transforms
 from model import FeatureExtractor
